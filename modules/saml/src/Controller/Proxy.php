@@ -67,10 +67,13 @@ class Proxy
     public function invalidSession(Request $request): Template|Response
     {
         // retrieve the authentication state
-        if (!$request->query->has('AuthState')) {
+        $stateId = $request->query->get('AuthState'); // GET
+        if ($stateId === null && $request->request->has('AuthState')) {
+            $stateId = $request->query->get('AuthState'); // POST
+        }
+        if (!is_string($stateId)) {
             throw new Error\BadRequest('Missing mandatory parameter: AuthState');
         }
-        $stateId = $request->query->get('AuthState');
 
         try {
             // try to get the state
